@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>TON Mining — @Tonemining26bot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ton:#0098EA;--ton2:#00D4FF;--gold:#FFD700;--gold2:#FFA500;
+  --bg:#020B18;--glass:rgba(0,152,234,0.08);--gb:rgba(0,212,255,0.18);
+  --shine:rgba(255,255,255,0.06);--text:#E8F4FF;--dim:rgba(232,244,255,0.5);
+  --green:#00FF88;--purple:#9B59FF;--red:#FF4757;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);min-height:100vh;position:relative}
+
+/* ─ BG ─ */
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.nb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.13;animation:nd 14s ease-in-out infinite alternate}
+.nb1{width:500px;height:500px;background:radial-gradient(circle,#0098EA,transparent);top:-150px;left:-150px;animation-delay:0s}
+.nb2{width:350px;height:350px;background:radial-gradient(circle,#9B59FF,transparent);bottom:-80px;right:-100px;animation-delay:-5s}
+.nb3{width:280px;height:280px;background:radial-gradient(circle,#00FF88,transparent);top:45%;left:55%;animation-delay:-9s}
+@keyframes nd{from{transform:translate(0,0)scale(1)}to{transform:translate(40px,25px)scale(1.12)}}
+#stars{position:fixed;inset:0;z-index:0}
+.star{position:absolute;background:#fff;border-radius:50%;animation:tw var(--d,3s) ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.08;transform:scale(1)}to{opacity:.85;transform:scale(1.4)}}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.35),transparent);z-index:1;pointer-events:none;animation:sc 5s linear infinite}
+@keyframes sc{from{top:-2px}to{top:100vh}}
+.fcrystal{position:fixed;pointer-events:none;font-size:18px;z-index:1;opacity:.12;animation:cf var(--d,18s) linear infinite}
+@keyframes cf{0%{transform:translateY(110vh)rotate(0deg);opacity:0}8%{opacity:.12}92%{opacity:.12}100%{transform:translateY(-120px)rotate(380deg);opacity:0}}
+
+/* ─ LAYOUT ─ */
+.app{position:relative;z-index:2;padding:0 15px 95px;max-width:430px;margin:0 auto}
+
+/* ─ HEADER ─ */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Orbitron',monospace;font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--ton2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-i{font-size:22px;filter:drop-shadow(0 0 8px #0098EA);animation:fl 3.5s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.lvl-badge{background:linear-gradient(135deg,rgba(0,152,234,.25),rgba(155,89,255,.25));border:1px solid var(--gb);border-radius:20px;padding:4px 13px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--ton2);letter-spacing:1px;backdrop-filter:blur(10px)}
+
+/* ─ GLASS CARD ─ */
+.gc{background:linear-gradient(135deg,var(--glass),rgba(255,255,255,.025));border:1px solid var(--gb);border-radius:18px;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,152,234,.1),inset 0 1px 0 var(--shine)}
+.gc::before{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.035),transparent);animation:shm 5s ease-in-out infinite}
+@keyframes shm{0%{left:-100%}100%{left:210%}}
+
+/* ─ TICKER ─ */
+.ticker-wrap{overflow:hidden;margin-bottom:12px;background:linear-gradient(135deg,rgba(0,152,234,.05),rgba(155,89,255,.04));border:1px solid var(--gb);border-radius:10px;padding:7px 0}
+.ticker-track{display:flex;gap:28px;animation:tick 22s linear infinite;white-space:nowrap}
+.ti{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:5px}
+.ti b{color:var(--green);font-weight:700}
+.ti.red b{color:var(--red)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─ BALANCE CARD ─ */
+.bal-card{padding:22px 20px;margin-bottom:12px;text-align:center}
+.bal-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.bal-num{font-family:'Orbitron',monospace;font-size:34px;font-weight:900;background:linear-gradient(135deg,#fff,var(--ton2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:3px;animation:gp 3.5s ease-in-out infinite}
+@keyframes gp{0%,100%{filter:drop-shadow(0 0 8px rgba(0,212,255,.3))}50%{filter:drop-shadow(0 0 22px rgba(0,212,255,.65))}}
+.ton-sym{font-size:16px;color:var(--ton2);margin-bottom:14px;display:block}
+.pend-row{display:flex;justify-content:center;gap:6px;align-items:center}
+.pdot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:bl 1.1s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.15}}
+.ptxt{font-size:13px;color:var(--green);letter-spacing:.3px}
+.prog-wrap{margin-top:11px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:5px}
+.prog-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ton),var(--ton2),var(--green));background-size:200% 100%;animation:pg 2.5s linear infinite;transition:width 1.2s ease}
+@keyframes pg{0%{background-position:200%}100%{background-position:-200%}}
+
+/* ─ RATE ROW ─ */
+.rate-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px}
+.ri{padding:11px 7px;text-align:center;border-radius:13px}
+.rv{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--ton2);display:block;margin-bottom:2px}
+.rk{font-size:9px;color:var(--dim);letter-spacing:.4px;text-transform:uppercase}
+
+/* ─ MINE BUTTON ─ */
+.mine-wrap{display:flex;justify-content:center;padding:18px 0 8px}
+.mine-btn{position:relative;cursor:pointer;width:155px;height:155px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(0,212,255,.28) 0%,rgba(0,152,234,.12) 40%,rgba(0,40,90,.45) 100%);border:2px solid rgba(0,212,255,.38);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(0,152,234,.28),0 0 55px rgba(0,152,234,.12),inset 0 0 28px rgba(0,212,255,.04);transition:all .14s ease;user-select:none;animation:mp 2.2s ease-in-out infinite}
+@keyframes mp{0%,100%{box-shadow:0 0 28px rgba(0,152,234,.28),0 0 55px rgba(0,152,234,.12),inset 0 0 28px rgba(0,212,255,.04)}50%{box-shadow:0 0 48px rgba(0,212,255,.55),0 0 90px rgba(0,152,234,.22),inset 0 0 45px rgba(0,212,255,.1)}}
+.mine-btn::before{content:'';position:absolute;inset:-9px;border-radius:50%;border:1px solid rgba(0,212,255,.14);animation:or 7s linear infinite}
+.mine-btn::after{content:'';position:absolute;inset:-17px;border-radius:50%;border:1px dashed rgba(0,212,255,.07);animation:or 11s linear infinite reverse}
+@keyframes or{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.mine-btn:active{transform:scale(.91);box-shadow:0 0 55px rgba(0,212,255,.6),inset 0 0 45px rgba(0,212,255,.18)}
+.mine-icon{font-size:46px;filter:drop-shadow(0 0 14px rgba(0,212,255,.9));margin-bottom:3px}
+.mine-lbl{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;color:var(--ton2);letter-spacing:2px;text-transform:uppercase}
+
+/* ─ PARTICLE ─ */
+.part{position:fixed;pointer-events:none;z-index:200;font-size:14px;font-weight:700;color:var(--ton2);animation:pf .75s ease-out forwards}
+@keyframes pf{0%{opacity:1;transform:translate(0,0)scale(1.2)}100%{opacity:0;transform:translate(var(--tx),var(--ty))scale(.4)}}
+
+/* ─ TABS ─ */
+.tabs{display:flex;gap:7px;margin-bottom:12px}
+.tab{flex:1;padding:9px 4px;border-radius:11px;border:1px solid var(--gb);background:transparent;color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.4px;transition:all .2s;backdrop-filter:blur(10px)}
+.tab.act{background:linear-gradient(135deg,rgba(0,152,234,.28),rgba(155,89,255,.18));border-color:var(--ton2);color:var(--ton2);box-shadow:0 0 14px rgba(0,152,234,.18)}
+.tc{display:none}.tc.act{display:block}
+
+/* ─ STATS GRID ─ */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.sb{padding:14px 12px;border-radius:14px;text-align:center}
+.sv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--ton2);display:block;margin-bottom:3px}
+.sk{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px}
+
+/* ─ CLAIM BTN ─ */
+.claim-btn{width:100%;padding:15px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(135deg,#0098EA,#00D4FF,#9B59FF);background-size:200% 200%;animation:gs 3.5s ease infinite;color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;box-shadow:0 6px 22px rgba(0,152,234,.38);transition:all .18s;margin-top:12px;position:relative;overflow:hidden}
+@keyframes gs{0%{background-position:0%50%}50%{background-position:100%50%}100%{background-position:0%50%}}
+.claim-btn:active{transform:scale(.97)}
+.claim-btn::after{content:'';position:absolute;top:50%;left:-70px;width:45px;height:100%;background:rgba(255,255,255,.14);transform:skewX(-20deg)translateY(-50%);animation:bs 2.8s ease-in-out infinite}
+@keyframes bs{0%{left:-70px}100%{left:115%}}
+
+/* ─ UPGRADE ─ */
+.upl{display:flex;flex-direction:column;gap:9px}
+.upi{padding:13px 14px;border-radius:15px;display:flex;align-items:center;gap:12px}
+.upi-ic{font-size:26px;width:42px;text-align:center;filter:drop-shadow(0 0 5px rgba(0,212,255,.4))}
+.upi-inf{flex:1}
+.upi-nm{font-size:14px;font-weight:700;margin-bottom:1px}
+.upi-rt{font-size:11px;color:var(--green);margin-top:1px}
+.upi-dc{font-size:10px;color:var(--dim)}
+.ubtn{padding:7px 12px;border-radius:9px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;min-width:68px;transition:all .18s}
+.ubtn.curr{background:rgba(0,255,136,.14);color:var(--green);border:1px solid rgba(0,255,136,.28)}
+.ubtn.buy{background:linear-gradient(135deg,var(--ton),#006BAA);color:#fff;box-shadow:0 4px 12px rgba(0,152,234,.28)}
+.ubtn.buy:active{transform:scale(.94)}
+.ubtn.lck{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid rgba(255,255,255,.09);cursor:default}
+
+/* ─ TASKS ─ */
+.tskl{display:flex;flex-direction:column;gap:9px}
+.tski{padding:13px 14px;border-radius:15px;display:flex;align-items:center;gap:11px}
+.tski-ic{font-size:22px;width:38px;text-align:center}
+.tski-inf{flex:1}
+.tski-nm{font-size:14px;font-weight:600;margin-bottom:1px}
+.tski-rw{font-size:11px;color:var(--gold)}
+.tbtn{padding:7px 11px;border-radius:9px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a0f00;box-shadow:0 3px 10px rgba(255,165,0,.28);transition:all .18s}
+.tbtn:active{transform:scale(.94)}
+.tbtn.dn{background:rgba(0,255,136,.13);color:var(--green);border:1px solid rgba(0,255,136,.28);cursor:default;box-shadow:none}
+
+/* ─ REFERRAL ─ */
+.ref-card{padding:20px;border-radius:18px;text-align:center;margin-bottom:12px}
+.ref-ttl{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);margin-bottom:6px;letter-spacing:1px}
+.ref-link{background:rgba(0,0,0,.3);border:1px solid var(--gb);border-radius:11px;padding:9px 13px;font-size:11px;color:var(--ton2);word-break:break-all;margin:11px 0;cursor:pointer;transition:all .18s;letter-spacing:.2px;display:block}
+.ref-link:active{background:rgba(0,152,234,.1)}
+.cpbtn{padding:10px 22px;border-radius:11px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--ton),var(--purple));color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;box-shadow:0 4px 14px rgba(0,152,234,.28);transition:all .18s}
+.cpbtn:active{transform:scale(.95)}
+.ref-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:105px;left:50%;transform:translateX(-50%)translateY(18px);background:linear-gradient(135deg,rgba(0,152,234,.96),rgba(0,70,140,.96));border:1px solid var(--ton2);border-radius:12px;padding:9px 20px;font-size:13px;font-weight:600;letter-spacing:.4px;opacity:0;pointer-events:none;z-index:999;transition:all .28s;backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,152,234,.28);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%)translateY(0)}
+
+/* ─ NAV ─ */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(2,11,24,.93);border-top:1px solid var(--gb);backdrop-filter:blur(22px);display:flex;padding:7px 14px 11px;z-index:50}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;cursor:pointer;border-radius:11px;border:none;background:transparent;color:var(--dim);transition:all .18s}
+.ni.act{color:var(--ton2)}
+.ni-ic{font-size:19px}
+.ni-lb{font-size:8px;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+
+/* ─ DAILY STREAK ─ */
+.streak-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.streak-day{min-width:38px;height:42px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--gb);background:var(--glass);font-size:8px;color:var(--dim);letter-spacing:.3px;gap:2px;flex-shrink:0}
+.streak-day.done{background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,212,255,.1));border-color:var(--green);color:var(--green)}
+.streak-day.today{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(155,89,255,.15));border-color:var(--ton2);color:var(--ton2);box-shadow:0 0 12px rgba(0,212,255,.2)}
+.sd-ic{font-size:14px}
+
+/* ─ NOTIFICATION DOT ─ */
+.notif{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--red);border-radius:50%;border:1px solid var(--bg)}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div id="bgc">
+  <div class="nb nb1"></div><div class="nb nb2"></div><div class="nb nb3"></div>
+  <div id="stars"></div>
+</div>
+<div class="scanline"></div>
+<div class="fcrystal" style="left:4%;--d:19s;animation-delay:0s">💎</div>
+<div class="fcrystal" style="left:22%;--d:24s;animation-delay:-6s">⛏️</div>
+<div class="fcrystal" style="left:60%;--d:17s;animation-delay:-11s">💎</div>
+<div class="fcrystal" style="left:82%;--d:21s;animation-delay:-3s">✨</div>
+
+<div class="app">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="logo"><span class="logo-i">⛏️</span>TON MINE</div>
+    <div class="lvl-badge">LVL <span id="hLvl">1</span></div>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ti">TON/USD <b id="tPrice">$2.84</b></div>
+      <div class="ti">⛏️ Mining <b>ACTIVE</b></div>
+      <div class="ti">24h <b id="t24h">+3.2%</b></div>
+      <div class="ti">Network <b>ONLINE</b></div>
+      <div class="ti">Users <b id="tUsers">0</b></div>
+      <div class="ti">Your Rate <b id="tRate">0.0010/hr</b></div>
+      <div class="ti">TON/USD <b>$2.84</b></div>
+      <div class="ti">⛏️ Mining <b>ACTIVE</b></div>
+      <div class="ti">24h <b>+3.2%</b></div>
+      <div class="ti">Network <b>ONLINE</b></div>
+      <div class="ti">Your Rate <b>0.0010/hr</b></div>
+    </div>
+  </div>
+
+  <!-- Balance -->
+  <div class="gc bal-card">
+    <div class="bal-lbl">Total Balance</div>
+    <div class="bal-num" id="balNum">0.0000</div>
+    <span class="ton-sym">◎ TON</span>
+    <div class="pend-row"><div class="pdot"></div>
+      <div class="ptxt">+<span id="pendNum">0.0000</span> TON mining...</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-lbl"><span>Daily Progress</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Rate Row -->
+  <div class="rate-row">
+    <div class="gc ri"><span class="rv" id="rRate">0.0010</span><span class="rk">TON/Hr</span></div>
+    <div class="gc ri"><span class="rv" id="rDaily">0.0240</span><span class="rk">Daily Est</span></div>
+    <div class="gc ri"><span class="rv" id="rTotal">0.000</span><span class="rk">Total Mined</span></div>
+  </div>
+
+  <!-- Mine Button -->
+  <div class="mine-wrap">
+    <div class="mine-btn" id="mineBtn" onclick="tapMine(event)">
+      <span class="mine-icon">⛏️</span>
+      <span class="mine-lbl">TAP TO MINE</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab act" onclick="sw('mine',this)">⛏️ Mine</button>
+    <button class="tab" onclick="sw('up',this)" style="position:relative">⚡ Upgrade<span class="notif" id="upNotif" style="display:none"></span></button>
+    <button class="tab" onclick="sw('tasks',this)" style="position:relative">📋 Tasks<span class="notif" id="tsNotif" style="display:none"></span></button>
+    <button class="tab" onclick="sw('ref',this)">👥 Refer</button>
+  </div>
+
+  <!-- Mine Tab -->
+  <div class="tc act" id="tc-mine">
+    <div class="sg">
+      <div class="gc sb"><span class="sv" id="stLvl">1</span><span class="sk">Mine Level</span></div>
+      <div class="gc sb"><span class="sv" id="stRef">0</span><span class="sk">Referrals</span></div>
+      <div class="gc sb"><span class="sv" id="stDays">0</span><span class="sk">Days Active</span></div>
+      <div class="gc sb"><span class="sv" id="stEarn">0.00</span><span class="sk">Ref Earned</span></div>
+    </div>
+    <!-- Daily Streak -->
+    <div class="streak-row" id="streakRow"></div>
+    <button class="claim-btn" onclick="claimMining()">⚡ CLAIM MINING REWARDS</button>
+  </div>
+
+  <!-- Upgrade Tab -->
+  <div class="tc" id="tc-up">
+    <div class="upl" id="upList"></div>
+  </div>
+
+  <!-- Tasks Tab -->
+  <div class="tc" id="tc-tasks">
+    <div class="tskl" id="tskList"></div>
+  </div>
+
+  <!-- Referral Tab -->
+  <div class="tc" id="tc-ref">
+    <div class="gc ref-card">
+      <div class="ref-ttl">🚀 REFERRAL PROGRAM</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:2px">Invite friends — earn TON together!</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0">
+        <div class="gc" style="padding:11px;text-align:center">
+          <span style="font-family:Orbitron,monospace;font-size:17px;color:var(--gold);display:block">0.05</span>
+          <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">Your Bonus TON</span>
+        </div>
+        <div class="gc" style="padding:11px;text-align:center">
+          <span style="font-family:Orbitron,monospace;font-size:17px;color:var(--green);display:block">0.025</span>
+          <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">Friend Bonus TON</span>
+        </div>
+      </div>
+      <div class="ref-link" id="refLink" onclick="copyRef()">Loading your referral link...</div>
+      <button class="cpbtn" onclick="copyRef()">📋 Copy Referral Link</button>
+      <div class="ref-row">
+        <div class="gc" style="padding:12px;text-align:center">
+          <span style="font-family:Orbitron,monospace;font-size:20px;color:var(--ton2);display:block" id="refCnt">0</span>
+          <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">Referrals</span>
+        </div>
+        <div class="gc" style="padding:12px;text-align:center">
+          <span style="font-family:Orbitron,monospace;font-size:15px;color:var(--gold);display:block" id="refEarn">0.0000</span>
+          <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px">TON Earned</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="ni act" onclick="navTo(0,this)"><span class="ni-ic">⛏️</span><span class="ni-lb">Mine</span></button>
+  <button class="ni" onclick="navTo(1,this)"><span class="ni-ic">💎</span><span class="ni-lb">Wallet</span></button>
+  <button class="ni" onclick="navTo(2,this)"><span class="ni-ic">🏆</span><span class="ni-lb">Rank</span></button>
+  <button class="ni" onclick="navTo(3,this)"><span class="ni-ic">⚙️</span><span class="ni-lb">Settings</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─ TELEGRAM ─────────────────────────────────────────────────────────────────
+const tg = window.Telegram?.WebApp;
+if(tg){tg.expand();tg.setHeaderColor('#020B18');tg.setBackgroundColor('#020B18');tg.ready()}
+const uid = tg?.initDataUnsafe?.user?.id || new URLSearchParams(location.search).get('uid') || 'demo';
+const uname = tg?.initDataUnsafe?.user?.first_name || 'Miner';
+const BOT = 'Tonemining26bot';
+
+// ─ CONSTANTS ─────────────────────────────────────────────────────────────────
+const RATES = [0,0.001,0.0015,0.0025,0.004,0.007];
+const COSTS = [0,0,0.1,0.5,2.0,10.0];
+const LVL_NAMES = ['','Basic Pickaxe','Steel Drill','Laser Cutter','Quantum Miner','AI Rig'];
+const LVL_ICONS = ['','⛏️','🔩','⚡','🔬','🤖'];
+
+// ─ STATE ─────────────────────────────────────────────────────────────────────
+let S = JSON.parse(localStorage.getItem('tms_'+uid)||'null') || {
+  bal:0, mined:0, lvl:1, refs:0, refEarn:0,
+  mStart:Date.now(), joined:Date.now(),
+  tasksDone:[], dailyLast:0, streak:0, tapCount:0
+};
+function save(){localStorage.setItem('tms_'+uid,JSON.stringify(S))}
+
+// ─ STARS ─────────────────────────────────────────────────────────────────────
+(()=>{
+  const c=document.getElementById('stars');
+  for(let i=0;i<90;i++){
+    const s=document.createElement('div');s.className='star';
+    const z=Math.random()*2.8+.4;
+    s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4.5}s;animation-delay:${-Math.random()*7}s`;
+    c.appendChild(s);
+  }
+})();
+
+// ─ MINING CALC ───────────────────────────────────────────────────────────────
+function rate(){return RATES[S.lvl]}
+function pending(){
+  const hrs=(Date.now()-S.mStart)/3600000;
+  return Math.min(hrs*rate(),24*rate());
+}
+
+// ─ UI UPDATE ─────────────────────────────────────────────────────────────────
+function ui(){
+  const p=pending(),mx=24*rate(),pct=Math.min(p/mx*100,100);
+  document.getElementById('balNum').textContent=S.bal.toFixed(4);
+  document.getElementById('pendNum').textContent=p.toFixed(4);
+  document.getElementById('progPct').textContent=pct.toFixed(0)+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('rRate').textContent=rate().toFixed(4);
+  document.getElementById('rDaily').textContent=(rate()*24).toFixed(4);
+  document.getElementById('rTotal').textContent=S.mined.toFixed(3);
+  document.getElementById('hLvl').textContent=S.lvl;
+  document.getElementById('stLvl').textContent=S.lvl;
+  document.getElementById('stRef').textContent=S.refs;
+  document.getElementById('stDays').textContent=Math.floor((Date.now()-S.joined)/86400000);
+  document.getElementById('stEarn').textContent=S.refEarn.toFixed(3);
+  document.getElementById('refCnt').textContent=S.refs;
+  document.getElementById('refEarn').textContent=S.refEarn.toFixed(4);
+  document.getElementById('refLink').textContent=`https://t.me/${BOT}?start=ref_${uid}`;
+  document.getElementById('tRate').textContent=rate().toFixed(4)+'/hr';
+  // Upgrade notif
+  if(S.lvl<5 && S.bal>=COSTS[S.lvl+1]) document.getElementById('upNotif').style.display='block';
+  else document.getElementById('upNotif').style.display='none';
+  // Task notif
+  const hasPending = TASKS.some(t=>!S.tasksDone.includes(t.id)&&taskOk(t.id));
+  document.getElementById('tsNotif').style.display = hasPending?'block':'none';
+}
+
+// ─ TAP MINE ──────────────────────────────────────────────────────────────────
+function tapMine(e){
+  tg?.HapticFeedback?.impactOccurred('light');
+  const v=0.00001*(1+(S.lvl-1)*0.5);
+  S.bal+=v; S.mined+=v; S.tapCount++; save(); ui();
+  spawnParts(e.clientX,e.clientY);
+  if(S.tapCount%50===0) toast(`🔥 ${S.tapCount} taps! Keep mining!`);
+  // Sync to bot silently on every 10th tap
+  if(S.tapCount%10===0) tg?.sendData?.(JSON.stringify({action:'tap',count:10}));
+}
+
+function spawnParts(x,y){
+  const ems=['💎','✨','⚡','+TON','◎'];
+  for(let i=0;i<6;i++){
+    const p=document.createElement('div');p.className='part';
+    p.textContent=ems[i%ems.length];
+    const a=Math.random()*360*(Math.PI/180),d=55+Math.random()*65;
+    p.style.cssText=`left:${x}px;top:${y}px;--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d-45}px;animation-delay:${i*.04}s`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),800);
+  }
+}
+
+// ─ CLAIM ─────────────────────────────────────────────────────────────────────
+function claimMining(){
+  const earned=pending();
+  if(earned<0.0001){toast('⏰ Mine more first!');return}
+  S.bal+=earned; S.mined+=earned; S.mStart=Date.now(); save(); ui();
+  tg?.HapticFeedback?.notificationOccurred('success');
+  toast(`💎 Claimed ${earned.toFixed(4)} TON!`);
+  tg?.sendData?.(JSON.stringify({action:'claim',amount:earned}));
+  // Big particle burst
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  for(let i=0;i<15;i++) setTimeout(()=>spawnParts(cx+(-80+Math.random()*160),cy),i*40);
+}
+
+// ─ UPGRADES ──────────────────────────────────────────────────────────────────
+function renderUp(){
+  const el=document.getElementById('upList');el.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const isCur=S.lvl===i, isNext=S.lvl+1===i, isLk=i>S.lvl+1;
+    const cost=COSTS[i], canBuy=isNext&&S.bal>=cost;
+    let bc='lck',bt=`🔒 ${cost} TON`;
+    if(isCur){bc='curr';bt='✅ Active'}
+    else if(isNext&&canBuy){bc='buy';bt=`Buy ${cost} TON`}
+    else if(isNext){bc='lck';bt=`${cost} TON`}
+    el.innerHTML+=`<div class="gc upi" style="opacity:${isLk?.5:1}">
+      <span class="upi-ic" style="filter:${isCur?'drop-shadow(0 0 12px #00FF88)':''}">${LVL_ICONS[i]}</span>
+      <div class="upi-inf">
+        <div class="upi-nm">${LVL_NAMES[i]}</div>
+        <div class="upi-dc">Level ${i} Mining Rig</div>
+        <div class="upi-rt">⚡ ${RATES[i].toFixed(4)} TON/hr · ${(RATES[i]*24).toFixed(3)}/day</div>
+      </div>
+      <button class="ubtn ${bc}" onclick="buyUp(${i})">${bt}</button>
+    </div>`;
+  }
+}
+
+function buyUp(lvl){
+  const cost=COSTS[lvl];
+  if(S.lvl+1!==lvl)return;
+  if(S.bal<cost){toast(`❌ Need ${cost} TON`);return}
+  tg?.HapticFeedback?.notificationOccurred('success');
+  S.bal-=cost;S.lvl=lvl;save();ui();renderUp();
+  toast(`🚀 Upgraded to Level ${lvl}!`);
+  tg?.sendData?.(JSON.stringify({action:'upgrade',level:lvl}));
+}
+
+// ─ TASKS ─────────────────────────────────────────────────────────────────────
+const TASKS=[
+  {id:'t1',ic:'📢',nm:'Join TON Mining Channel',rw:0.02,link:'https://t.me/tonemining26'},
+  {id:'t2',ic:'🐦',nm:'Follow on Twitter/X',rw:0.015,link:'https://x.com/tonemining26'},
+  {id:'t3',ic:'📅',nm:'Daily Check-in (24hr)',rw:0.01,link:null},
+  {id:'t4',ic:'👥',nm:'Invite 1 Friend',rw:0.05,link:null},
+  {id:'t5',ic:'💎',nm:'Reach Mining Level 2',rw:0.03,link:null},
+  {id:'t6',ic:'⛏️',nm:'Mine 0.1 TON Total',rw:0.05,link:null},
+];
+
+function taskOk(id){
+  if(id==='t5')return S.lvl>=2;
+  if(id==='t4')return S.refs>=1;
+  if(id==='t3')return Date.now()-S.dailyLast>86400000;
+  if(id==='t6')return S.mined>=0.1;
+  return true;
+}
+
+function renderTasks(){
+  const el=document.getElementById('tskList');el.innerHTML='';
+  TASKS.forEach(t=>{
+    const done=S.tasksDone.includes(t.id);
+    const ok=taskOk(t.id);
+    el.innerHTML+=`<div class="gc tski" style="opacity:${!ok&&!done?.6:1}">
+      <span class="tski-ic">${t.ic}</span>
+      <div class="tski-inf">
+        <div class="tski-nm">${t.nm}</div>
+        <div class="tski-rw">+${t.rw} TON reward</div>
+      </div>
+      <button class="tbtn ${done?'dn':''}" onclick="doTask('${t.id}')" ${!ok&&!done?'disabled':''}>
+        ${done?'✅ Done':ok?'Claim':'🔒'}
+      </button>
+    </div>`;
+  });
+}
+
+function doTask(id){
+  if(S.tasksDone.includes(id))return;
+  const t=TASKS.find(x=>x.id===id);
+  if(!taskOk(id)){toast('❌ Requirements not met');return}
+  if(t.link)window.open(t.link,'_blank');
+  setTimeout(()=>{
+    if(!S.tasksDone.includes(id)){
+      S.tasksDone.push(id);S.bal+=t.rw;
+      if(id==='t3')S.dailyLast=Date.now();
+      save();ui();renderTasks();
+      toast(`🎁 +${t.rw} TON claimed!`);
+      tg?.HapticFeedback?.notificationOccurred('success');
+    }
+  },t.link?1800:0);
+}
+
+// ─ STREAK ────────────────────────────────────────────────────────────────────
+function renderStreak(){
+  const el=document.getElementById('streakRow');el.innerHTML='';
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=new Date().getDay();
+  days.forEach((d,i)=>{
+    const isDone=i<today;const isToday=i===today;
+    el.innerHTML+=`<div class="streak-day ${isDone?'done':''} ${isToday?'today':''}">
+      <span class="sd-ic">${isDone?'✅':isToday?'🔥':'⬜'}</span>
+      <span>${d}</span>
+    </div>`;
+  });
+}
+
+// ─ REFERRAL ──────────────────────────────────────────────────────────────────
+function copyRef(){
+  const link=`https://t.me/${BOT}?start=ref_${uid}`;
+  navigator.clipboard?.writeText(link).then(()=>toast('📋 Link copied!')).catch(()=>toast('📋 Copied!'));
+  tg?.HapticFeedback?.impactOccurred('medium');
+}
+
+// ─ TABS ──────────────────────────────────────────────────────────────────────
+function sw(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.getElementById('tc-'+name).classList.add('act');
+  if(name==='up')renderUp();
+  if(name==='tasks')renderTasks();
+}
+
+// ─ NAV ───────────────────────────────────────────────────────────────────────
+const navMsgs=['','💰 TON Wallet — withdrawals coming soon!','🏆 Global Leaderboard — coming soon!','⚙️ Settings — coming soon!'];
+function navTo(i,el){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
+  el.classList.add('act');
+  if(i>0)toast(navMsgs[i]);
+}
+
+// ─ TOAST ─────────────────────────────────────────────────────────────────────
+let _tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ─ PRICE SIMULATION ──────────────────────────────────────────────────────────
+let tonPrice=2.84;
+function updateTicker(){
+  tonPrice+=(Math.random()-.5)*0.02;
+  tonPrice=Math.max(2.5,Math.min(3.2,tonPrice));
+  const change=((tonPrice-2.84)/2.84*100).toFixed(1);
+  const p=document.getElementById('tPrice');
+  const c=document.getElementById('t24h');
+  if(p)p.textContent='$'+tonPrice.toFixed(2);
+  if(c){c.textContent=(change>=0?'+':'')+change+'%';c.style.color=change>=0?'var(--green)':'var(--red)'}
+}
+setInterval(updateTicker,4000);
+
+// ─ INIT ──────────────────────────────────────────────────────────────────────
+ui();renderStreak();
+setInterval(()=>{ui()},1000);
+</script>
+</body>
+</html>
